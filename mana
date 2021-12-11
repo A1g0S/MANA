@@ -21,7 +21,7 @@ function banner(){
     echo -e "\t\t88      8      88 d8            8b 88       888 d8            8b${RESET}";sleep 0.2;
     echo ""
     echo -e "\t\t\t\t\t\t\t\t\t\t${GREEN}Made by ΑΛΓΟΣ${RESET}";sleep 0.5
-    echo -e "\t\t\t\t\t\t\t\t\t\t${GREEN}Version: 0.0.1${RESET}";sleep 0.5
+    echo -e "\t\t\t\t\t\t\t\t\t\t${GREEN}Version: Beta${RESET}";sleep 0.5
     echo "" 
     echo "Use with caution. You are responsible for your actions."
     echo "Developer assume no liability and are not responsible for any misuse or damage."
