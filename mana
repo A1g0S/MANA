@@ -194,7 +194,7 @@ function thira(){
 function scan(){
   thira
   xterm -e zsh -c 'cat waybackurls | fff | tee waybackurlstatus'
-  cat waybackurlstatus | fgrep '.php' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200;then echo $line;fi;done | tee php_files
+  cat waybackurlstatus | fgrep '.php' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200 ]];then echo $line;fi;done | tee php_files
   cat waybackurlstatus | fgrep '.jsp' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200 ]];then echo $line;fi;done | tee jsp_files
   cat waybackurlstatus | fgrep '.html' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200 ]];then echo $line;fi;done | tee html_files
   cat waybackurlstatus | fgrep '.js' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200 ]];then echo $line;fi;done | tee javascript_files
