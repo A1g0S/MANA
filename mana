@@ -198,7 +198,7 @@ function scan(){
   cat waybackurlstatus | fgrep '.jsp' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200 ]];then echo $line;fi;done | tee jsp_files
   cat waybackurlstatus | fgrep '.html' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200 ]];then echo $line;fi;done | tee html_files
   cat waybackurlstatus | fgrep '.js' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200 ]];then echo $line;fi;done | tee javascript_files
-  xterm -e zsh -c 'cat hosts | fff -S -o roots
+  xterm -e zsh -c 'cat hosts | fff -S -o roots'
   find roots '*.body' | html-tool tags title meta | sort -u | tee titles
   find roots '*.headers' | while read line;do cat $line;done | sort -u | tee headers
 }
