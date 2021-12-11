@@ -15,4 +15,8 @@ Stage two:
  Mana is in beta version, so it might not work properly.
  Please for any problem contact me!
  
+ Install
+   git clone https://github.com/A1g0S/MANA.git
+   cd MANA
+   chmod +x mana
  
