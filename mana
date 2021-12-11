@@ -1,0 +1,226 @@
+#!/usr/bin/bash
+
+user=${USER}
+directory=$(pwd)
+base=$(basename "$PWD")
+wildcard=${directory}/wildcards
+
+RED="\e[31m"
+GREEN="\e[32m"
+RESET="\e[0m"
+
+function banner(){
+
+    echo -e "\t\t${RED}88b           d88        db        888b      88        db       ";sleep 0.2;
+    echo -e "\t\t888b         d888       d88b       8888b     88       d88b      ";sleep 0.2;
+    echo -e "\t\t888b         d888      d8  8b      88 8b     88      d8  8b     ";sleep 0.2;
+    echo -e "\t\t88  8b     d8  88     d8    8b     88   8b   88     d8    8b    ";sleep 0.2;
+    echo -e "\t\t88   8b   d8   88    d8YaaaaY8b    88    8b  88    d8YaaaaY8b   ";sleep 0.2;
+    echo -e "\t\t88    8b d8    88   d8   8b   88   8b 88   d88b   d8        8b  ";sleep 0.2;
+    echo -e "\t\t88     888     88  d8          8b  88      8888  d8          8b ";sleep 0.2;
+    echo -e "\t\t88      8      88 d8            8b 88       888 d8            8b${RESET}";sleep 0.2;
+    echo ""
+    echo -e "\t\t\t\t\t\t\t\t\t\t${GREEN}Made by ΑΛΓΟΣ${RESET}";sleep 0.5
+    echo -e "\t\t\t\t\t\t\t\t\t\t${GREEN}Version: 0.0.1${RESET}";sleep 0.5
+    echo "" 
+    echo "Use with caution. You are responsible for your actions."
+    echo "Developer assume no liability and are not responsible for any misuse or damage."
+    echo "By using MANA, you also agree to the terms of the APIs used."
+    read -p "[!]Do you agree? y/n:" answer
+    if [ ${answer} = "n" ]
+    then
+     exit
+    fi
+    echo ""
+}
+
+function search() {
+  whereis ${1} | awk '{print $2}'
+}
+
+function checkrequirements(){
+   bin_path=$(search "bash")
+   bin_path=$(echo "${bin_path//bash/}")
+   
+   golang=$(search "go")
+   if [ -z ${golang} ]
+   then
+     [ "$UID" -eq 0 ] || exec sudo "$0" "$@"   
+     echo "[!]Go: not installed"
+     xterm -e bash -c "apt-get install golang -y"
+     echo "PATH=\$PATH:\$HOME/go/bin" | tee -a $HOME/.bashrc
+   fi
+   echo "[*]Go: Done"
+   
+
+   if [ "$UID" -eq 0 ];then sudo -u $SUDO_USER "$0";fi
+   assetfinder=$(search "assetfinder")
+   if [ -z ${assetfinder} ]
+   then 
+     echo "[!]assetfinder: not installed"
+     xterm -e bash -c 'go install github.com/tomnomnom/assetfinder@latest'
+   fi
+   echo "[*]assetfinder: Done"   
+   
+   subfinder=$(search "subfinder")
+   if [ -z ${subfinder} ]
+   then
+     echo "[!]subfinder: not installed."
+     xterm -e bash -c 'go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest'
+   fi
+   echo "[*]subfinder: Done"
+
+   knock=$(search "knock")
+   if [ -z ${knock} ]
+   then 
+    echo "[!]Knock: not installed"
+    xterm -e bash -c 'cd /opt;git clone "https://github.com/guelfoweb/knock.git";cd knock;pip3 install -r requirements.txt;chmod +x knockpy.py;ln -s `pwd`/knockpy.py $HOME/tools/knock'
+
+   fi
+   echo "[*]Knock: Done"
+
+   findomain=$(search "findomain")
+   if [ -z ${findomain} ]
+   then
+    echo "[!]Findomain: not installed"
+    xterm -e bash -c 'cd /tmp;wget "https://github.com/findomain/findomain/releases/latest/download/findomain-linux";chmod +x findomain-linux;mv findomain-linux "$HOME/tools/findomain";'
+   fi
+   echo "[*]Findomain: Done"
+   
+   httprobe=$(search "httprobe")
+   if [ -z ${httprobe} ]
+   then
+     echo "[!]httprobe: not installed"
+     go install github.com/tomnomnom/httprobe@latest
+   fi
+   echo "[*]httprobe: Done"
+
+   waybackurls=$(search "waybackurls")
+   if [ -z ${waybackurls} ]
+   then
+     echo "[!]waybackurls: not installed"
+     xterm -e bash -c 'go install github.com/tomnomnom/waybackurls@latest'
+   fi
+   echo "[*]waybackurls: Done"
+
+   if [ ! -f "/usr/share/wordlists/Subdomain.txt" ]
+   then 
+    echo "[!]Wordlist: missing"
+    xterm -e bash -c "wget 'https://raw.githubusercontent.com/danTaler/WordLists/master/Subdomain.txt' -o /usr/share/wordlists/Subdomain.txt" 
+   fi
+   echo "[*]Wordlist: Done"
+
+   html_tool=$(search "html-tool")
+   if [ -z ${html_tool} ]
+   then
+     echo "[!]html-tool: not installed"
+     xterm -e zsh -c 'go install github.com/tomnomnom/hacks/html-tool@latest '
+   fi
+   echo "[*]html-tool: Done"
+}
+
+function checkdirs(){
+   
+   if [ ! -f ${wildcard} ]
+   then
+     echo "[!]You need to make a file named 'wildcards' with the target domains."
+     exit
+   fi
+
+   if [ ! -d "sublist3r" ]
+   then
+     mkdir "sublist3r"
+   fi
+   
+   if [ ! -d "knock" ]
+   then 
+     mkdir "knock"
+   fi
+
+   if [ ! -d "$HOME/tools" ]
+   then 
+    mkdir "tools"
+   fi
+
+   if [ ! -d "nmap" ]
+   then
+    mkdir "nmap"
+   fi
+}
+
+function subsearch(){
+   xterm -geometry 100x30+0+25 -e zsh -cc 'cat wildcards | assetfinder --subs-only | tee -a domains'&
+   xterm -geometry 100x30+610+25 -e zsh -cc 'subfinder -all -dL wildcards -o subfinder'&
+   xterm -geometry 114x30+1220+25 -e zsh -cc 'cat wildcards | while read line;do sublist3r -d $line -o sublist3r/$line;done;'&
+   xterm -geometry 114x30+610+450 -e zsh -cc 'findomain -f wildcards | tee findomain.out'&
+   read -p "[!]Press enter when everything is finished." 
+   cat subfinder | tee -a domains > /dev/null
+   rm subfinder
+   ls sublist3r | while read line;do cat sublist3r/$line;done | tee -a domains > /dev/null
+   rm -rf sublist3r
+   cat wildcards | while read line;do cat findomain.out | grep $line;done | tee findomain > /dev/null
+   cat findomain | while read line;do if [[ $line != *"Target"* ]];then echo $line;fi;done | tee -a domains /dev/null
+   rm findomain.out
+   rm findomain
+   cat domains | sort -u | tee domains > /dev/null
+   clear
+}
+
+function knockpy(){
+	xterm -geometry 100x30+0+450 -e zsh -cc 'cat wildcards | while read line;do knock $line -o knock;done;'&
+        
+}
+
+function liveweb(){
+   i=80
+   while [[ $i -gt 10 ]];
+    do
+      i=80 xterm -e zsh -c 'cat domains | httprobe -c $i | tee -a hosts;sleep 1'&
+      i=$(($i-20))
+   done;
+   read -p "[!]Press enter when everything is finished(leave knockpy running)." 
+   cat hosts | sort -u | tee hosts > /dev/null
+
+}
+
+function archive(){
+   xterm -e zsh -c 'cat hosts | waybackurls | tee waybackurls'
+}
+
+function thira(){
+    xterm -e zsh -c 'cat domains | while read line;do nmap -sS -oN nmap/$line $line;done;'
+}
+
+function scan(){
+  thira
+  xterm -e zsh -c 'cat waybackurls | fff | tee waybackurlstatus'
+  cat waybackurlstatus | fgrep '.php' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200;then echo $line;fi;done; | tee php_files
+  cat waybackurlstatus | fgrep '.jsp' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200 ]];then echo $line;fi;done | tee jsp_files
+  cat waybackurlstatus | fgrep '.html' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200 ]];then echo $line;fi;done | tee html_files
+  cat waybackurlstatus | fgrep '.js' | while read line;do if [[ $(echo $line | awk '{print $2}') == 200 ]];then echo $line;fi;done | tee javascript_files
+  xterm -e zsh -c 'cat hosts | fff -S -o roots
+  find roots '*.body' | html-tool tags title meta | sort -u | tee titles
+  find roots '*.headers' | while read line;do cat $line;done | sort -u | tee headers
+}
+
+function mana(){
+   subsearch
+   knockpy
+   liveweb
+   archive 
+   status
+   scan
+  
+}
+
+function main(){
+  
+  if [ "$UID" -eq 0 ];then echo "[!]Don't run as root, bad idea.";sleep 2;exit;fi;
+  banner
+  checkdirs
+  checkrequirements
+  mana
+  exit
+}
+
+main
